@@ -1,0 +1,148 @@
+package com.example.priyam.sqltesting;
+//DisplayListView.java
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.ListView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class DisplayListView extends AppCompatActivity {
+String json_string;
+JSONObject jsonObject;
+JSONArray jsonArray;
+descriptionAdaptar descriptionadaptar;
+ListView listView;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.display_list);
+        listView=(ListView) findViewById(R.id.listview);
+
+        descriptionadaptar=new descriptionAdaptar(this,R.layout.rowlayout);
+        listView.setAdapter(descriptionadaptar);
+        json_string=getIntent().getExtras().getString("json_data");
+        int data2 = getIntent().getExtras().getInt("counter");
+        try {
+            JSONObject jsonObject = new JSONObject(json_string);
+            JSONArray jsonArray=jsonObject.getJSONArray("server_response");
+            int count=1;
+            String title,descr;
+            while(count<(data2+1)){
+                JSONObject jo=jsonArray.getJSONObject(count);
+title=jo.getString("title");
+descr=jo.getString("descr");
+             //  link=jo.getString("link");
+description des=new description(title,descr);
+descriptionadaptar.add(des);
+                // ok=jo.getString("id");
+                count++;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+}
+//description.java
+package com.example.priyam.sqltesting;
+
+public class description {
+
+    private  String title  ,descr;
+
+public description(String title,String descr){
+
+
+    this.setTitle(title);
+    this.setDescr(descr);
+
+}
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescr() {
+        return descr;
+    }
+
+    public void setDescr(String descr) {
+        this.descr = descr;
+    }
+
+}
+//descriptionAdaptar
+package com.example.priyam.sqltesting;
+
+import android.content.Context;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class descriptionAdaptar extends ArrayAdapter {
+    List list=new ArrayList();
+    public descriptionAdaptar( Context context, int resource) {
+        super(context, resource);
+    }
+
+    public void add(description object) {
+        super.add(object);
+        list.add(object);
+    }
+
+    @Override
+    public int getCount() {
+        return list.size();
+    }
+
+
+    @Override
+    public Object getItem(int position) {
+        return list.get(position);
+    }
+
+
+    @Override
+    public View getView(int position,  View convertView,  ViewGroup parent) {
+
+        View row;
+        row=convertView;
+        holder holder;
+        if(row==null)
+        {
+            LayoutInflater layoutInflater=(LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            row= layoutInflater.inflate(R.layout.rowlayout,parent,false);
+            holder=new holder();
+            holder.tx_title=(TextView)row.findViewById(R.id.tx_title);
+            holder.tx_descr=(TextView)row.findViewById(R.id.tx_descr);
+        //    holder.tx_link=(TextView)row.findViewById(R.id.tx_link);
+            row.setTag(holder);
+        }
+        else{
+            holder=(holder) row.getTag();
+        }
+        description description=(description) this.getItem(position);
+        holder.tx_title.setText(description.getTitle());
+        holder.tx_descr.setText(description.getDescr());
+      //  holder.tx_link.setText(description.getLink());
+        return row;
+    }
+    static class holder{
+
+        TextView tx_title,tx_descr;
+    }
+
+
+}
+
